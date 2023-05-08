@@ -1,0 +1,31 @@
+{
+  "name": "fsweb-backend-challenge",
+  "version": "1.0.0",
+  "description": "Tebrikler, Backend konularını tamamladın.",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env node_env=testing jest",
+    "server": "nodemon index",
+    "start": "node index",
+    "migrate": "knex migrate:latest",
+    "rollback": "knex migrate:rollback",
+    "seed": "knex seed:run",
+    "resetdb": "knex migrate:rollback && knex migrate:latest && knex seed:run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "knex": "^2.4.2",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.22",
+    "supertest": "^6.3.3"
+  }
+}
