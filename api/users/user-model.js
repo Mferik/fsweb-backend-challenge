@@ -24,7 +24,7 @@ const updateUser = async (userId,user) => {
 }
 
 const removeUser = async (userId) => {
-    const removedUser = await db("Users").where({userId}).del()
+     await db("Users").where({userId}).del()
     return getAllUsers()
 }
 
