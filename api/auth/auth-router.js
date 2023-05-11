@@ -1,79 +1,57 @@
 const router = require("express").Router();
-const db = require("../../data/db-config");
-const authMd = require("./auth-middleware");
+const UserModel = require("../users/users-model");
 const { JWT_SECRET } = require("../../config/config");
-const { HASH_ROUNDS } = require("../../config/config");
 const jwt = require("jsonwebtoken");
-const bcryptjs = require("bcryptjs");
-const userModel = require("../users/user-model");
+const mw = require("./auth-middleware");
 
-const generateToken = (user) => {
-  let payload = {
-    id: user.userId,
-    username: user.username,
-    role: user.roleId == "1" ? "admin" : "user",
-  };
-  let option = {
-    expiresIn: "24h",
-  };
-  return jwt.sign(payload, JWT_SECRET, option);
-};
+
+router.get("/", (req, res, next) => {
+  res.status(200).json({
+    message: "Auth servisi çalışıyor",
+  });
+});
 
 router.post(
   "/register",
-  authMd.checkPayloadRegister,
-  authMd.uniqueValue,
+  mw.payloadCheck,
+  mw.usernameAndEmailUnique,
   async (req, res, next) => {
     try {
-      const hashedPassword = bcryptjs.hashSync(req.body.password, HASH_ROUNDS);
-      req.body.password = hashedPassword;
-
-      req.body.roleId = 2;
-      const response = await userModel.addUser(req.body);
-      res.status(201).json(response);
-    } catch (error) {
-      next({ status: 500, message: "Database problem" });
-    }
-  }
-);
-
-router.post(
-  "/login",
-  authMd.checkPayloadLogin,
-  authMd.isUsernameExist,
-  async (req, res, next) => {
-    try {
-      const searchedUser = await db("Users as u")
-        .leftJoin("Roles as r", "r.roleId", "u.roleId")
-        .select("u.*", "r.*")
-        .where("username", req.body.username)
-        .first();
-
-      if (bcryptjs.compareSync(req.body.password, searchedUser.password)) {
-        const token = generateToken(searchedUser);
-        const currentUser = {
-          id: searchedUser.userId,
-          username: searchedUser.username,
-          role: searchedUser.roleId == 1 ? "admin" : "user",
-        };
-        res.status(
-          json({
-            message: `${searchedUser.username} hoşgeldinnn`,
-            token: token,
-            currentUser: currentUser,
-          })
-        );
-      } else {
-        next({ status: 402, message: "geçersiz deneme" });
-      }
+      const newUserObj = {
+        username: req.body.username,
+        email: req.body.email,
+        password: req.encPassword,
+      };
+      let registeredUser = await UserModel.addUser(newUserObj);
+      res.status(201).json(registeredUser);
     } catch (error) {
       next(error);
     }
   }
 );
 
-router.use((err, req, res, next) => {
-  res.status(err.status).json({ message: err.message });
-});
+router.post(
+  "/login",
+  mw.payloadCheckLogin,
+  mw.passwordCheck,
+  async (req, res, next) => {
+    try {
+      const token = jwt.sign(
+        {
+          user_id: req.user.user_id,
+          name: req.user.name,
+        },
+        JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+      res.status(200).json({
+        message: `Merhabalar ${req.user.username}`,
+        token: token,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;
