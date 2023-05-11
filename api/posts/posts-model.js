@@ -5,7 +5,7 @@ const getPosts = async () => {
     .leftJoin("posts as p", "u.user_id", "p.user_id")
     .select(
       "u.user_id",
-      "u.name",
+      "u.username",
       "p.post_content",
       "p.posts_date",
       "p.post_id"

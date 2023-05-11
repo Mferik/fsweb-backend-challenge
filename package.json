@@ -4,7 +4,7 @@
   "description": "Tebrikler, Backend konularını tamamladın.",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=testing jest --verbose --runInBand --silent",
+    "test": "cross-env NODE_ENV=testing jest --verbose --watchAll --runInBand",
     "server": "nodemon index",
     "start": "node index",
     "migrate": "knex migrate:latest",

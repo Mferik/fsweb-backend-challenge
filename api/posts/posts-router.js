@@ -15,7 +15,7 @@ router.post("/", mw.checkPayloadAndUserIdExist, async (req, res, next) => {
   try {
     let insertedPost = await model.insertPost({
       user_id: req.userInfo.user_id,
-      post_content: req.body.post_conten,
+      post_content: req.body.post_content,
     });
     res.json(insertedPost);
   } catch (error) {
